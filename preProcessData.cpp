@@ -3,8 +3,7 @@
 #include "globals.h"
 #include <sstream>
 #include <fstream>
-#include <iostream>
-using std::cout;
+
 using std::ifstream;
 using std::stringstream;
 

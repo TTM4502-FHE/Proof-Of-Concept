@@ -1,31 +1,34 @@
 #include "fingerprintTemplate.h"
 #include "convexHull.h"
+#include <chrono>
+#include <future>
+#include "comparison.h"
 
-FingerprintTemplate::FingerprintTemplate(vector<Minutia> minutiae1) {
-  minutiae = minutiae1;
-  convexHull = findConvexHull(minutiae);
-  fillWithCylinders();
-  CS = createCylinderSet();
+#include <iostream>
+
+using std::cout;
+
+FingerprintTemplate::FingerprintTemplate(vector<Minutia> &minutiae1,
+                                         template_struct &template_struct) {
+  convexHull = findConvexHull(minutiae1);
+  fillWithCylinders(template_struct, minutiae1);
 }
 
-Cylinder FingerprintTemplate::getCylinderAtIndex(int index) {
-  auto cylinder_front = cylinders.begin();
-  advance(cylinder_front, index);
-  return *cylinder_front;
-}
-void FingerprintTemplate::fillWithCylinders() {
-  for (auto it = minutiae.begin(), end = minutiae.end(); it != end; it++) {
-    Cylinder newCylinder(*it, minutiae, convexHull);
-    cylinders.push_back(newCylinder);
+void FingerprintTemplate::fillWithCylinders(template_struct &template_struct,
+                                            vector<Minutia> &minutiae1) {
+  vector<std::future<Cylinder>> fut_cylinders;
+  for (auto it = minutiae1.begin(), end = minutiae1.end(); it != end; it++) {
+    fut_cylinders.emplace_back(std::async(
+        std::launch::async, createCylinderAsync, *it, minutiae1, convexHull));
   }
-}
-
-vector<Cylinder> FingerprintTemplate::createCylinderSet() {
-  vector<Cylinder> CS_temp;
-  for (Cylinder c : cylinders) {
-    if (c.valid == true) {
-      CS_temp.push_back(c);
+  for (auto &&fut : fut_cylinders) {
+    auto cyl_temp = fut.get();
+    if (cyl_temp.valid) {
+      cylinders.push_back(cyl_temp);
+      cylinder_struct cylinder_struct;
+      cylinder_struct.cyl_angle = cyl_temp.minutia.angle;
+      cylinder_struct.c_m = cyl_temp.c_m;
+      template_struct.cylinders.push_back(cylinder_struct);
     }
   }
-  return CS_temp;
 }

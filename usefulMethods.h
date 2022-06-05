@@ -45,14 +45,7 @@ bool doIntersect(Minutia p1, Minutia q1, vector<double> p2, vector<double> q2);
 // Returns true if the point p lies inside the polygon[] with n vertices
 bool isInside(vector<Minutia> polygon, int n, vector<double> p);
 
-
 double distanceOfVector(vector<double> v);
-
-double distanceOfVectorBinary(vector<int> v);
-
-int hammingDistance(Cylinder a, Cylinder b);
-
-double hammingSimilarity(FingerprintTemplate A, FingerprintTemplate B);
 
 double directionalDifference(double angle1, double angle2);
 

@@ -4,6 +4,7 @@
 #include <iostream>
 
 using std::cout;
+using std::endl;
 using std::max;
 using std::min;
 
@@ -33,15 +34,17 @@ bool onSegment(const Minutia p, const Minutia q, const vector<double> r) {
   if (q.x_coordinate <= max(p.x_coordinate, r[0]) &&
       q.x_coordinate >= min(p.x_coordinate, r[0]) &&
       q.y_coordinate <= max(p.y_coordinate, r[1]) &&
-      q.y_coordinate >= min(p.y_coordinate, r[1]))
+      q.y_coordinate >= min(p.y_coordinate, r[1])) {
     return true;
+  }
   return false;
 }
 
 bool onSegment(vector<double> p, Minutia q, vector<double> r) {
   if (q.x_coordinate <= max(p[0], r[0]) && q.x_coordinate >= min(p[0], r[0]) &&
-      q.y_coordinate <= max(p[1], r[1]) && q.y_coordinate >= min(p[1], r[1]))
+      q.y_coordinate <= max(p[1], r[1]) && q.y_coordinate >= min(p[1], r[1])) {
     return true;
+  }
   return false;
 }
 
@@ -49,15 +52,17 @@ bool onSegment(Minutia p, vector<double> q, Minutia r) {
   if (q[0] <= max(p.x_coordinate, r.x_coordinate) &&
       q[0] >= min(p.x_coordinate, r.x_coordinate) &&
       q[1] <= max(p.y_coordinate, r.y_coordinate) &&
-      q[1] >= min(p.y_coordinate, r.y_coordinate))
+      q[1] >= min(p.y_coordinate, r.y_coordinate)) {
     return true;
+  }
   return false;
 }
 
 bool onSegment(vector<double> p, vector<double> q, Minutia r) {
   if (q[0] <= max(p[0], r.x_coordinate) && q[0] >= min(p[0], r.x_coordinate) &&
-      q[1] <= max(p[1], r.y_coordinate) && q[1] >= min(p[1], r.y_coordinate))
+      q[1] <= max(p[1], r.y_coordinate) && q[1] >= min(p[1], r.y_coordinate)) {
     return true;
+  }
   return false;
 }
 
@@ -122,6 +127,23 @@ bool doIntersect(Minutia p1, Minutia q1, vector<double> p2, vector<double> q2) {
 // Check if point is inside convex hull
 // Returns true if the point p lies inside the polygon[] with n vertices
 bool isInside(vector<Minutia> polygon, int n, vector<double> p) {
+  int minX;
+  int minY;
+  int maxX;
+  int maxY;
+
+  minX = polygon[0].x_coordinate;
+  maxX = polygon[0].x_coordinate;
+  minY = polygon[0].y_coordinate;
+  maxY = polygon[0].y_coordinate;
+
+  for (Minutia m : polygon) {
+    if (m.x_coordinate < minX) minX = m.x_coordinate;
+    if (m.x_coordinate > maxX) maxX = m.x_coordinate;
+    if (m.y_coordinate < minY) minY = m.y_coordinate;
+    if (m.y_coordinate > maxY) maxY = m.y_coordinate;
+  }
+
   // There must be at least 3 vertices in polygon[]
   if (n < 3) return false;
 
@@ -149,6 +171,9 @@ bool isInside(vector<Minutia> polygon, int n, vector<double> p) {
   // Return true if count is odd, false otherwise
   if (count % 2 == 1) {
     return true;
+  } else if (p[0] >= minX - omega && p[0] <= maxX + omega &&
+             p[1] >= minY - omega && p[1] <= maxY + omega) {
+    return true;
   } else {
     return false;
   }
@@ -160,37 +185,6 @@ double distanceOfVector(vector<double> v) {
     temp = temp + pow(i, 2);
   }
   return sqrt(temp);
-}
-
-double distanceOfVectorBinary(vector<int> v) {
-  double temp = 0;
-  for (int i : v) {
-    temp = temp + pow(i, 2);
-  }
-  return sqrt(temp);
-}
-
-int hammingDistance(Cylinder a, Cylinder b) {
-  int dist_counter = 0;
-  for (auto it = a.c_m_binary.begin(), end = a.c_m_binary.end(); it != end;
-       it++) {
-    auto index = distance(a.c_m_binary.begin(), it);
-    if (*it != b.c_m_binary[index]) {
-      dist_counter += 1;
-    }
-  }
-  return dist_counter;
-}
-
-double hammingSimilarity(FingerprintTemplate A, FingerprintTemplate B) {
-  double num_of_comparisons = A.cylinders.size() * B.cylinders.size();
-  double temp = 0.0;
-  for (Cylinder r : A.cylinders) {
-    for (Cylinder c : B.cylinders) {
-      temp += hammingDistance(r, c);
-    }
-  }
-  return temp / num_of_comparisons;
 }
 
 double directionalDifference(double angle1, double angle2) {

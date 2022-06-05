@@ -1,7 +1,10 @@
 #include "convexHull.h"
 #include "minutia.h"
 #include <algorithm>
+#include <iostream>
 
+using std::cout;
+using std::endl;
 using std::swap;
 Minutia p0;
 
@@ -99,5 +102,6 @@ vector<Minutia> findConvexHull(vector<Minutia> minutiae_) {
     convexHullPoints.push_back(stk.top());  // add points from stack
     stk.pop();
   }
+
   return convexHullPoints;
 }

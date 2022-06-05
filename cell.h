@@ -19,10 +19,7 @@ class Cell {
   double contribution_directional = 0.0;
   double contribution_total = 0.0;
   double zigmoid = 0.0;  // zigmoid of total contribution - Cm(i, j, k)
-  int zigmoid_binary = 0;
   bool valid;
-  vector<Minutia> related_fingerprintTemplate_cell;
-  vector<Minutia> related_convex;
   vector<Minutia> neighbourhood;
 
   Cell(double i_, double j_, double k_, Minutia minutia1, vector<Minutia> t_,
@@ -48,14 +45,10 @@ class Cell {
   // Calculate cell value - Cm(k, j, k)
   double totalContribution();
 
-  vector<Minutia> calculateNeighbourhood();
+  vector<Minutia> calculateNeighbourhood(vector<Minutia> &t_);
 
   // Equation (5) from paper
-  double calculateZigmoid(double v);
-
-  int calculateZigmoidBinary(double v);
+  double calculateZigmoid(double v, vector<Minutia> &conv_);
 };
-
-
 
 #endif

@@ -11,8 +11,6 @@ Cell::Cell(double i_, double j_, double k_, Minutia minutia1,
   i = i_;
   j = j_;
   minutia = minutia1;
-  related_fingerprintTemplate_cell = t_;
-  related_convex = conv_;
 
   // Eq (1)
   cell_angle = cellAngleAtK(k);
@@ -21,12 +19,11 @@ Cell::Cell(double i_, double j_, double k_, Minutia minutia1,
   p_ij = calculatePoint();
 
   // Eq (3)
-  neighbourhood = calculateNeighbourhood();
+  neighbourhood = calculateNeighbourhood(t_);
 
   // Eq (4) + (5)
   contribution_total = totalContribution();
-  zigmoid = calculateZigmoid(contribution_total);
-  zigmoid_binary = calculateZigmoidBinary(contribution_total);
+  zigmoid = calculateZigmoid(contribution_total, conv_);
 }
 
 // Equation (2) in MCC paper
@@ -134,9 +131,9 @@ double Cell::totalContribution() {
   return total;
 }
 
-vector<Minutia> Cell::calculateNeighbourhood() {
+vector<Minutia> Cell::calculateNeighbourhood(vector<Minutia> &t_) {
   vector<Minutia> temp;
-  for (Minutia m : related_fingerprintTemplate_cell) {
+  for (Minutia m : t_) {
     if (m.x_coordinate != minutia.x_coordinate &&
         m.y_coordinate != minutia.y_coordinate) {
       if (euclideanDistance(p_ij[0], p_ij[1], m) <= 3 * std_s) {
@@ -148,21 +145,13 @@ vector<Minutia> Cell::calculateNeighbourhood() {
 }
 
 // Equation (5) from paper
-double Cell::calculateZigmoid(double v) {
+double Cell::calculateZigmoid(double v, vector<Minutia> &conv_) {
   double temp;
-  if (isInside(related_convex, related_convex.size(), p_ij)) {
+  if (isInside(conv_, conv_.size(), p_ij)) {
     temp = 1 / (1 + pow(M_E, -zigmoid_t * (v - zigmoid_u)));
     valid = true;
     return temp;
   }
   valid = false;
   return -1;
-}
-
-int Cell::calculateZigmoidBinary(double v) {
-  if (contribution_total >= zigmoid_u) {
-    return 1;
-  } else {
-    return 0;
-  }
 }
